@@ -4,6 +4,7 @@ A PowerShell script for installing pipx with pipx
 
 ## Other Versions
 
+  * [Python](https://github.com/un-def/pipx-bootstrap.py)
   * [POSIX Shell](https://github.com/un-def/pipx-bootstrap.sh)
 
 ## Usage
