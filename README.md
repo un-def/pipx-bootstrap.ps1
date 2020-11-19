@@ -36,6 +36,6 @@ pipx install pipx --verbose --force
 The script uses `python3` binary by default. It can be overriden with the environment variable `PYTHON_BIN`:
 
 ```powershell
-$Env:PYTHON_BIN=X:\path\to\python
+$Env:PYTHON_BIN = 'X:\path\to\python'
 .\pipx-bootstrap.sh
 ```
