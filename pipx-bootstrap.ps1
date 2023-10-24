@@ -1,20 +1,22 @@
-function call($expr) {
-    $output = Invoke-Expression $expr
+$python = if ($Env:PYTHON_BIN) { $Env:PYTHON_BIN } else { 'python3.exe' }
+
+function Invoke-Python([string[]]$arguments) {
+    $output = & $python $arguments
     if ($LastExitCode) {
         throw $output
     }
     return $output
 }
 
-$python = if ($Env:PYTHON_BIN) { $Env:PYTHON_BIN } else { 'python3.exe' }
 $origPythonPath = $Env:PYTHONPATH
 $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 New-Item -ItemType Directory -Path $tmp > $null
+
 try {
-    if ((call "${python} -c 'import sys; print(sys.version_info >= (3, 6))'") -ne 'True') {
+    if ((Invoke-Python '-c', "`"import sys; print(sys.version_info >= (3, 6))"`") -ne 'True') {
         throw 'python 3.6+ is required'
     }
-    call "${python} -m pip download --only-binary :all: --dest ${tmp} pipx"
+    Invoke-Python '-m', 'pip', 'download', '--only-binary', ':all:', '--dest', $tmp, 'pipx'
     $pipxWheel = Get-ChildItem -Path $tmp pipx-*.whl -Name
     if (!$pipxWheel) {
         throw 'pipx wheel not found'
@@ -26,7 +28,9 @@ try {
     if ($origPythonPath) {
         $Env:PYTHONPATH += ';' + $origPythonPath
     }
-    call "${python} ${tmp}/${pipxWheel}/pipx install pipx ${args}"
+    $pipxinstall = "${tmp}/${pipxWheel}/pipx", 'install', 'pipx'
+    $pipxinstall += $args
+    Invoke-Python $pipxinstall
 } finally {
     Remove-Item $tmp -Recurse
     if ($origPythonPath) {
